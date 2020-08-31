@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('holidays', {
@@ -10,8 +10,15 @@ module.exports = {
       name: {
         type: Sequelize.STRING,
       },
-      date: {
-        type: Sequelize.DATE,
+      day: {
+        type: Sequelize.INTEGER(2),
+      },
+      month: {
+        type: Sequelize.INTEGER(2),
+      },
+      year: {
+        type: Sequelize.INTEGER(4),
+        allowNull: true,
       },
       type: {
         type: Sequelize.ENUM('m', 'n', 's', 'c'),
@@ -20,13 +27,13 @@ module.exports = {
         type: Sequelize.UUID,
         references: {
           model: {
-            tableName: 'locations'
-          }
-        }
+            tableName: 'locations',
+          },
+        },
       },
       slug: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,
