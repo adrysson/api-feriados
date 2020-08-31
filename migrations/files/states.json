@@ -1,0 +1,112 @@
+{
+    "states": [
+        {
+            "ibge": 12,
+            "UF": "AC"
+        },
+        {
+            "ibge": 27,
+            "UF": "AL"
+        },
+        {
+            "ibge": 16,
+            "UF": "AP"
+        },
+        {
+            "ibge": 13,
+            "UF": "AM"
+        },
+        {
+            "ibge": 29,
+            "UF": "BA"
+        },
+        {
+            "ibge": 23,
+            "UF": "CE"
+        },
+        {
+            "ibge": 53,
+            "UF": "DF"
+        },
+        {
+            "ibge": 32,
+            "UF": "ES"
+        },
+        {
+            "ibge": 52,
+            "UF": "GO"
+        },
+        {
+            "ibge": 21,
+            "UF": "MA"
+        },
+        {
+            "ibge": 51,
+            "UF": "MT"
+        },
+        {
+            "ibge": 50,
+            "UF": "MS"
+        },
+        {
+            "ibge": 31,
+            "UF": "MG"
+        },
+        {
+            "ibge": 15,
+            "UF": "PA"
+        },
+        {
+            "ibge": 25,
+            "UF": "PB"
+        },
+        {
+            "ibge": 41,
+            "UF": "PR"
+        },
+        {
+            "ibge": 26,
+            "UF": "PE"
+        },
+        {
+            "ibge": 22,
+            "UF": "PI"
+        },
+        {
+            "ibge": 33,
+            "UF": "RJ"
+        },
+        {
+            "ibge": 24,
+            "UF": "RN"
+        },
+        {
+            "ibge": 43,
+            "UF": "RS"
+        },
+        {
+            "ibge": 11,
+            "UF": "RO"
+        },
+        {
+            "ibge": 14,
+            "UF": "RR"
+        },
+        {
+            "ibge": 42,
+            "UF": "SC"
+        },
+        {
+            "ibge": 35,
+            "UF": "SP"
+        },
+        {
+            "ibge": 28,
+            "UF": "SE"
+        },
+        {
+            "ibge": 17,
+            "UF": "TO"
+        }
+    ]
+}
