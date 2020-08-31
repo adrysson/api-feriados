@@ -1,0 +1,44 @@
+{
+    "holidays": [
+        {
+            "day": 1,
+            "month": 1,
+            "name": "Ano novo"
+        },
+        {
+            "day": 21,
+            "month": 4,
+            "name": "Tiradentes"
+        },
+        {
+            "day": 1,
+            "month": 5,
+            "name": "Dia do Trabalhador"
+        },
+        {
+            "day": 7,
+            "month": 9,
+            "name": "Independência"
+        },
+        {
+            "day": 12,
+            "month": 10,
+            "name": "Nossa Senhora Aparecida"
+        },
+        {
+            "day": 2,
+            "month": 11,
+            "name": "Finados"
+        },
+        {
+            "day": 15,
+            "month": 11,
+            "name": "Proclamação da República"
+        },
+        {
+            "day": 25,
+            "month": 12,
+            "name": "Natal"
+        }
+    ]
+}

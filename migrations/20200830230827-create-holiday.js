@@ -9,19 +9,23 @@ module.exports = {
       },
       name: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       day: {
-        type: Sequelize.INTEGER(2),
+        type: Sequelize.INTEGER,
+        allowNull: false,
       },
       month: {
-        type: Sequelize.INTEGER(2),
+        type: Sequelize.INTEGER,
+        allowNull: false,
       },
       year: {
-        type: Sequelize.INTEGER(4),
+        type: Sequelize.INTEGER,
         allowNull: true,
       },
       type: {
         type: Sequelize.ENUM('m', 'n', 's', 'c'),
+        allowNull: false,
       },
       location_id: {
         type: Sequelize.UUID,
@@ -30,16 +34,17 @@ module.exports = {
             tableName: 'locations',
           },
         },
+        allowNull: true,
       },
       slug: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
       },
