@@ -1,4 +1,4 @@
-import uuid from 'uuid/v4'
+const { v4: uuidv4 } = require('uuid')
 ;('use strict')
 const { Model } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   )
 
-  Location.beforeCreate((location) => (location.id = uuid()))
+  Location.beforeCreate((location) => (location.id = uuidv4()))
 
   return Location
 }

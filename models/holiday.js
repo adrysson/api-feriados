@@ -1,7 +1,7 @@
-import uuid from 'uuid/v4'
+const { v4: uuidv4 } = require('uuid')
 ;('use strict')
-import { Model } from 'sequelize'
-export default (sequelize, DataTypes) => {
+const { Model } = require('sequelize')
+module.exports = (sequelize, DataTypes) => {
   class Holiday extends Model {
     /**
      * Helper method for defining associations.
@@ -18,18 +18,23 @@ export default (sequelize, DataTypes) => {
   Holiday.init(
     {
       name: DataTypes.STRING,
-      date: DataTypes.DATE,
-      type: DataTypes.ENUM,
-      locationId: DataTypes.UUID,
+      day: DataTypes.INTEGER,
+      month: DataTypes.INTEGER,
+      year: DataTypes.INTEGER,
+      type: DataTypes.ENUM('m', 'n', 's', 'c'),
+      location_id: DataTypes.UUID,
       slug: DataTypes.STRING,
     },
     {
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
       sequelize,
       modelName: 'Holiday',
+      tableName: 'holidays',
     }
   )
 
-  Holiday.beforeCreate((holiday) => (holiday.id = uuid()))
+  Holiday.beforeCreate((holiday) => (holiday.id = uuidv4()))
 
   return Holiday
 }
