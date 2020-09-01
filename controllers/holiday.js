@@ -1,17 +1,73 @@
-const holiday = require('../models').Holiday
+const Holiday = require('../models').Holiday
+const Location = require('../models').Location
+const regex = require('../services/regex')
+const dateFormat = require('dateformat')
 
 module.exports = {
   async index(req, res) {
-    return holiday
-      .findAll({
-        order: [['created_at', 'DESC']],
+    try {
+      const location = await Location.findOne({
+        where: {
+          ibge: req.params.ibge
+        }
       })
-      .then((holidays) => {
-        res.status(200).send(holidays)
-      })
-      .catch((error) => {
-        res.status(400).send(error)
-      })
+
+      if (!location) {
+        return res.status(404).send({
+          message: 'O código do IBGE informado não existe na base de dados',
+        })
+      }
+
+      const feriadoParam = req.params.feriado
+
+      // Feriados nacionais
+
+      // Se foi enviado uma data
+      if (feriadoParam.match(regex.date())) {
+        const stringDate = feriadoParam.split('-').reverse().join('-')
+        const date = new Date(stringDate)
+        const day = dateFormat(date, 'dd')
+        const month = dateFormat(date, 'mm')
+
+        const nationalHolidays = await Holiday.findOne({
+          where: {
+            day,
+            month,
+            type: 'n'
+          }
+        })
+
+        if (nationalHolidays) {
+          return res.status(200).send(nationalHolidays)
+        }
+
+        return res.status(404).send({
+          message: `Não foi encontrado nenhum feriado nesta data para ${location.name}`,
+        })
+      }
+      // const nationalHolidays = await holiday.findOne({
+      //   where: {
+
+      //   }
+      // })
+
+      // Feriados móveis
+
+      // Feriados estaduais/municipais
+
+      return holiday
+        .findOne({
+          // where: {
+          //   ibge: req.params.ibge
+          // },
+          order: [['created_at', 'DESC']],
+        })
+        .then((holidays) => {
+          res.status(200).send(holidays)
+        })
+    } catch (error) {
+      res.status(400).send(error)
+    }
   },
 
   getById(req, res) {

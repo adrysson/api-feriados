@@ -21,7 +21,26 @@ module.exports = (sequelize, DataTypes) => {
       day: DataTypes.INTEGER,
       month: DataTypes.INTEGER,
       year: DataTypes.INTEGER,
-      type: DataTypes.ENUM('m', 'n', 's', 'c'),
+      type: {
+        type: DataTypes.ENUM('m', 'n', 's', 'c'),
+        get(column) {
+          const value = this.getDataValue(column)
+
+          if (value === 'm') {
+            return 'Móvel'
+          }
+          if (value === 'n') {
+            return 'Nacional'
+          }
+          if (value === 's') {
+            return 'Estadual'
+          }
+          if (value === 'c') {
+            return 'Local'
+          }
+          return null
+        },
+      },
       location_id: DataTypes.UUID,
       slug: DataTypes.STRING,
     },

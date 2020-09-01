@@ -22,8 +22,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM('s', 'c'),
     },
     {
+      timestamps: false,
       sequelize,
       modelName: 'Location',
+      tableName: 'locations',
     }
   )
 
