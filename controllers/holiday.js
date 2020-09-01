@@ -2,14 +2,15 @@ const Holiday = require('../models').Holiday
 const Location = require('../models').Location
 const regex = require('../services/regex')
 const dateFormat = require('dateformat')
+const { Op } = require('sequelize')
 
 module.exports = {
   async index(req, res) {
     try {
       const location = await Location.findOne({
         where: {
-          ibge: req.params.ibge
-        }
+          ibge: req.params.ibge,
+        },
       })
 
       if (!location) {
@@ -20,25 +21,31 @@ module.exports = {
 
       const feriadoParam = req.params.feriado
 
-      // Feriados nacionais
-
       // Se foi enviado uma data
       if (feriadoParam.match(regex.date())) {
         const stringDate = feriadoParam.split('-').reverse().join('-')
         const date = new Date(stringDate)
         const day = dateFormat(date, 'dd')
         const month = dateFormat(date, 'mm')
+        const year = dateFormat(date, 'yyyy')
 
-        const nationalHolidays = await Holiday.findOne({
+        // Buscando feriados
+        const holidays = await Holiday.findOne({
           where: {
             day,
             month,
-            type: 'n'
-          }
+            [Op.or]: [
+              { type: 'n' },
+              {
+                location_id: location.id,
+                year,
+              },
+            ],
+          },
         })
 
-        if (nationalHolidays) {
-          return res.status(200).send(nationalHolidays)
+        if (holidays) {
+          return res.status(200).send(holidays)
         }
 
         return res.status(404).send({
