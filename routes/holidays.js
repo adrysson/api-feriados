@@ -5,8 +5,12 @@ const regex = require('../services/regex')
 
 /* GET holidays listing. */
 router.get(
-  `/:ibge(${regex.ibge()})/:feriado((${regex.date()}|[a-z]+|${regex.slug}))`,
+  `/:ibge(${regex.ibge()})/:feriado((${regex.date()}))`,
   holidayController.index
 )
+// router.get(
+//   `/:ibge(${regex.ibge()})/:feriado((${regex.date()}|[a-z]+|${regex.slug}))`,
+//   holidayController.index
+// )
 
 module.exports = router

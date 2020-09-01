@@ -19,61 +19,70 @@ module.exports = {
         })
       }
 
-      const feriadoParam = req.params.feriado
-
-      // Se foi enviado uma data
-      if (feriadoParam.match(regex.date())) {
-        const stringDate = feriadoParam.split('-').reverse().join('-')
-        const date = new Date(stringDate)
-        const day = dateFormat(date, 'dd')
-        const month = dateFormat(date, 'mm')
-        const year = dateFormat(date, 'yyyy')
-
-        // Buscando feriados
-        const holidays = await Holiday.findOne({
+      // Estado do código IBGE
+      const ibgeState = req.params.ibge.substring(0, 2)
+      let state = null
+      // Se o código não pertence a um estado, buscar esse estado
+      if (ibgeState !== req.params.ibge) {
+        state = await Location.findOne({
           where: {
-            day,
-            month,
-            [Op.or]: [
-              { type: 'n' },
-              {
-                location_id: location.id,
-                year,
-              },
-            ],
+            ibge: ibgeState,
           },
         })
 
-        if (holidays) {
-          return res.status(200).send(holidays)
+        if (!state) {
+          return res.status(404).send({
+            message: 'O código do IBGE informado não existe na base de dados',
+          })
         }
+      }
 
-        return res.status(404).send({
-          message: `Não foi encontrado nenhum feriado nesta data para ${location.name}`,
+      const stringDate = req.params.feriado.split('-').reverse().join('-')
+      const date = new Date(stringDate)
+      const day = dateFormat(date, 'dd')
+      const month = dateFormat(date, 'mm')
+      const year = dateFormat(date, 'yyyy')
+
+      // condições de busca de feriados
+      const conditions = [
+        // Feriados nacionais
+        { type: 'n' },
+        // Feriados móveis ou locais
+        {
+          location_id: location.id,
+          year,
+        },
+      ]
+
+      if (state) {
+        // Feriados estaduais
+        conditions.push({
+          type: 's',
+          location_id: state.id,
+          year,
         })
       }
-      // const nationalHolidays = await holiday.findOne({
-      //   where: {
 
-      //   }
-      // })
+      // Buscando feriados
+      const holidays = await Holiday.findOne({
+        where: {
+          day,
+          month,
+          [Op.or]: conditions,
+        },
+      })
 
-      // Feriados móveis
+      if (holidays) {
+        return res.status(200).send(holidays)
+      }
 
-      // Feriados estaduais/municipais
+      // Buscando feriados móveis
 
-      return holiday
-        .findOne({
-          // where: {
-          //   ibge: req.params.ibge
-          // },
-          order: [['created_at', 'DESC']],
-        })
-        .then((holidays) => {
-          res.status(200).send(holidays)
-        })
+      return res.status(404).send({
+        message: `Não foi encontrado nenhum feriado nesta data para ${location.name}`,
+      })
     } catch (error) {
-      res.status(400).send(error)
+      res.status(400).send(error.message)
     }
   },
 
