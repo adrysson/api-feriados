@@ -1,19 +1,21 @@
 module.exports = {
-  carnaval: {
-    slug: 'carnaval',
-    name: 'Carnaval',
-  },
-  sextaFeiraSanta: {
-    slug: 'sexta-feira-santa',
-    name: 'Sexta-Feira Santa',
-  },
-  corpusChristi: {
-    slug: 'corpus-christi',
-    name: 'Corpus Christi',
-  },
-  pascoa: {
-    slug: 'pascoa',
-    name: 'Páscoa',
+  holidays: {
+    carnaval: {
+      slug: 'carnaval',
+      name: 'Carnaval',
+    },
+    sextaFeiraSanta: {
+      slug: 'sexta-feira-santa',
+      name: 'Sexta-Feira Santa',
+    },
+    corpusChristi: {
+      slug: 'corpus-christi',
+      name: 'Corpus Christi',
+    },
+    pascoa: {
+      slug: 'pascoa',
+      name: 'Páscoa',
+    },
   },
 
   /**
@@ -21,13 +23,31 @@ module.exports = {
    * @param {date} Date
    * @description Retorna o feriado móvel de determinada data, caso exista
    */
-  get(date) {
-    const year = date.getFullYear()
-    const pascoa = this.getPascoa(year)
-    const carnaval = this.getCarnaval(pascoa)
-    const corpusChristi = this.getCorpusChristi(pascoa)
-    const sextaFeiraSanta = this.getSextaFeiraSanta(pascoa)
+  get(dateObject) {
+    const year = dateObject.getFullYear()
+    this.setDates(year)
+
+    const date = this.getDateString(dateObject)
+
+    const holiday = Object.values(this.holidays).find((holiday) => {
+      return holiday.date === date
+    })
+
+    if (holiday) {
+      return this.getResponse(holiday)
+    }
+
     return null
+  },
+  setDates(year) {
+    this.holidays.pascoa.date = this.getPascoa(year)
+    this.holidays.carnaval.date = this.getCarnaval(this.holidays.pascoa.date)
+    this.holidays.corpusChristi.date = this.getCorpusChristi(
+      this.holidays.pascoa.date
+    )
+    this.holidays.sextaFeiraSanta.date = this.getSextaFeiraSanta(
+      this.holidays.pascoa.date
+    )
   },
   /**
    *
@@ -49,7 +69,7 @@ module.exports = {
     const m = Math.floor((a + 11 * h + 22 * l) / 451)
     const month = Math.floor((h + l - 7 * m + 114) / 31)
     const day = 1 + ((h + l - 7 * m + 114) % 31)
-    return new Date(`${year}-${month}-${day}`)
+    return `${year}-${month}-${day}`
   },
   /**
    *
@@ -57,9 +77,7 @@ module.exports = {
    * @description Retorna a data da terça-feira de carnaval de acordo com a data da páscoa
    */
   getCarnaval(pascoa) {
-    const carnaval = new Date(pascoa)
-    carnaval.setDate(carnaval.getDate() - 47)
-    return carnaval
+    return this.subtractDate(pascoa, 47)
   },
   /**
    *
@@ -67,9 +85,7 @@ module.exports = {
    * @description Retorna a data do feriado de corpus christi de acordo com a data da páscoa
    */
   getCorpusChristi(pascoa) {
-    const corpusChristi = new Date(pascoa)
-    corpusChristi.setDate(corpusChristi.getDate() + 60)
-    return corpusChristi
+    return this.addDate(pascoa, 60)
   },
   /**
    *
@@ -77,8 +93,27 @@ module.exports = {
    * @description Retorna a data da sexta-feira santa de acordo com a data da páscoa
    */
   getSextaFeiraSanta(pascoa) {
-    const sextaFeiraSanta = new Date(pascoa)
-    sextaFeiraSanta.setDate(sextaFeiraSanta.getDate() - 2)
-    return sextaFeiraSanta
+    return this.subtractDate(pascoa, 2)
+  },
+  addDate(date, days) {
+    const newDate = new Date(date)
+    newDate.setDate(newDate.getDate() + days)
+    return this.getDateString(newDate)
+  },
+  subtractDate(date, days) {
+    const newDate = new Date(date)
+    newDate.setDate(newDate.getDate() - days)
+    return this.getDateString(newDate)
+  },
+  getDateString(dateObject) {
+    const day = ('0' + dateObject.getUTCDate()).slice(-2)
+    const month = ('0' + (dateObject.getMonth() + 1)).slice(-2)
+    const year = dateObject.getFullYear()
+    return `${year}-${month}-${day}`
+  },
+  getResponse(holiday) {
+    return {
+      name: holiday.name,
+    }
   },
 }

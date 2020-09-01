@@ -1,6 +1,6 @@
 const Holiday = require('../models').Holiday
 const Location = require('../models').Location
-const regex = require('../services/regex')
+const mobileHolidays = require('../services/mobileHolidays')
 const dateFormat = require('dateformat')
 const { Op } = require('sequelize')
 
@@ -37,13 +37,12 @@ module.exports = {
         }
       }
 
-      const stringDate = req.params.feriado.split('-').reverse().join('-')
-      const date = new Date(stringDate)
+      const date = new Date(req.params.feriado)
       const day = dateFormat(date, 'dd')
       const month = dateFormat(date, 'mm')
       const year = dateFormat(date, 'yyyy')
 
-      // condições de busca de feriados
+      // Condições de busca de feriados
       const conditions = [
         // Feriados nacionais
         { type: 'n' },
@@ -63,8 +62,15 @@ module.exports = {
         })
       }
 
-      // Buscando feriados
-      const holidays = await Holiday.findOne({
+      // Buscando feriados móveis
+      const mobileHoliday = mobileHolidays.get(date)
+
+      if (mobileHoliday) {
+        return res.status(200).send(mobileHoliday)
+      }
+
+      // Buscando feriado
+      const holiday = await Holiday.findOne({
         where: {
           day,
           month,
@@ -72,11 +78,9 @@ module.exports = {
         },
       })
 
-      if (holidays) {
-        return res.status(200).send(holidays)
+      if (holiday) {
+        return res.status(200).send(holiday)
       }
-
-      // Buscando feriados móveis
 
       return res.status(404).send({
         message: `Não foi encontrado nenhum feriado nesta data para ${location.name}`,
