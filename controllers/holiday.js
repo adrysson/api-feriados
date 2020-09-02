@@ -37,10 +37,17 @@ module.exports = {
         }
       }
 
-      const date = new Date(req.params.feriado)
-      const day = dateFormat(date, 'dd')
-      const month = dateFormat(date, 'mm')
-      const year = dateFormat(date, 'yyyy')
+      const feriadoExploded = req.params.feriado.split('-')
+
+      const date = new Date(
+        parseInt(feriadoExploded[0]),
+        parseInt(feriadoExploded[1]) - 1,
+        parseInt(feriadoExploded[2])
+      )
+
+      const day = date.getUTCDate()
+      const month = date.getMonth() + 1
+      const year = date.getFullYear()
 
       // Condições de busca de feriados
       const conditions = [
@@ -65,6 +72,8 @@ module.exports = {
       // Buscando feriados móveis
       const mobileHoliday = mobileHolidays.get(date)
 
+      // Remover feriados excluídos pelos usuários
+
       if (mobileHoliday) {
         return res.status(200).send(mobileHoliday)
       }
@@ -79,7 +88,7 @@ module.exports = {
       })
 
       if (holiday) {
-        return res.status(200).send(holiday)
+        return res.status(200).send(mobileHolidays.getResponse(holiday))
       }
 
       return res.status(404).send({
@@ -89,38 +98,6 @@ module.exports = {
       res.status(400).send(error.message)
     }
   },
-
-  getById(req, res) {
-    return Holiday.findByPk(req.params.id, {
-      include: [
-        {
-          model: Student,
-          as: 'students',
-        },
-      ],
-    })
-      .then((holiday) => {
-        if (!holiday) {
-          return res.status(404).send({
-            message: 'Holiday Not Found',
-          })
-        }
-        return res.status(200).send(holiday)
-      })
-      .catch((error) => {
-        console.log(error)
-        res.status(400).send(error)
-      })
-  },
-
-  add(req, res) {
-    return Holiday.create({
-      class_name: req.body.class_name,
-    })
-      .then((holiday) => res.status(201).send(holiday))
-      .catch((error) => res.status(400).send(error))
-  },
-
   update(req, res) {
     return Holiday.findByPk(req.params.id, {
       include: [
@@ -145,8 +122,7 @@ module.exports = {
       })
       .catch((error) => res.status(400).send(error))
   },
-
-  delete(req, res) {
+  destroy(req, res) {
     return Holiday.findByPk(req.params.id)
       .then((holiday) => {
         if (!holiday) {
