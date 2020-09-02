@@ -1,3 +1,7 @@
+const Location = require('../models').Location
+const { Op } = require('sequelize')
+const Holiday = require('../models').Holiday
+
 module.exports = {
   holidays: {
     carnaval: {
@@ -23,21 +27,109 @@ module.exports = {
    * @param {date} Date
    * @description Retorna o feriado móvel de determinada data, caso exista
    */
-  get(dateObject) {
+  async get(date, location, state = null) {
+    const mobileHoliday = this.getMobileHoliday(date)
+
+    if (mobileHoliday) {
+      // Remover feriados excluídos pelos usuários
+      return mobileHoliday
+    }
+
+    const conditions = this.getConditionsHolidays(date, location, state)
+
+    const day = date.getUTCDate()
+    const month = date.getMonth() + 1
+
+    // Buscando feriado
+    return await Holiday.findOne({
+      where: {
+        day,
+        month,
+        [Op.or]: conditions,
+      },
+    })
+  },
+  getConditionsHolidays(date, location, state = null) {
+    const year = date.getFullYear()
+
+    // Condições de busca de feriados
+    const conditions = [
+      // Feriados nacionais
+      { type: 'n' },
+      // Feriados móveis ou locais
+      {
+        location_id: location.id,
+        year,
+      },
+    ]
+
+    if (state) {
+      // Feriados estaduais
+      conditions.push({
+        type: 's',
+        location_id: state.id,
+        year,
+      })
+    }
+
+    return conditions
+  },
+  getMobileHoliday(dateObject) {
     const year = dateObject.getFullYear()
     this.setDates(year)
 
     const date = this.getDateString(dateObject)
 
-    const holiday = Object.values(this.holidays).find((holiday) => {
+    return Object.values(this.holidays).find((holiday) => {
       return holiday.date === date
     })
+  },
+  async getLocation(ibge) {
+    const location = await Location.findOne({
+      where: {
+        ibge,
+      },
+    })
 
-    if (holiday) {
-      return this.getResponse(holiday)
+    if (!location) {
+      throw {
+        status: 404,
+        message: 'O código do IBGE informado não existe na base de dados',
+      }
     }
 
+    return location
+  },
+  async getState(ibgeLocation) {
+    // Estado do código IBGE
+    const ibge = ibgeLocation.substring(0, 2)
+    // Se o código não pertence a um estado, buscar esse estado
+    if (ibge !== ibgeLocation) {
+      const state = await Location.findOne({
+        where: {
+          ibge,
+        },
+      })
+
+      if (!state) {
+        throw {
+          status: 404,
+          message: 'O código do IBGE informado não existe na base de dados',
+        }
+      }
+
+      return state
+    }
     return null
+  },
+  parseDate(date) {
+    const dateExploded = date.split('-')
+
+    return new Date(
+      parseInt(dateExploded[0]),
+      parseInt(dateExploded[1]) - 1,
+      parseInt(dateExploded[2])
+    )
   },
   setDates(year) {
     this.holidays.pascoa.date = this.getPascoa(year)
