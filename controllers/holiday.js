@@ -1,5 +1,6 @@
 const Holiday = require('../models').Holiday
 const service = require('../services/holiday')
+const regex = require('../services/regex')
 
 module.exports = {
   async index(req, res) {
@@ -8,7 +9,7 @@ module.exports = {
 
       const state = await service.getState(req.params.ibge)
 
-      const date = service.parseDate(req.params.feriado)
+      const date = `${year}-${req.params.feriado}`
 
       const holiday = await service.get(date, location, state)
 
@@ -31,7 +32,7 @@ module.exports = {
       const state = await service.getState(req.params.ibge)
 
       const year = new Date().getFullYear()
-      const date = service.parseDate(`${year}-${req.params.feriado}`)
+      const date = `${year}-${req.params.feriado}`
 
       const holiday = await service.get(date, location, state)
 
@@ -58,10 +59,9 @@ module.exports = {
 
       const state = await service.getState(req.params.ibge)
 
-      const year = new Date().getFullYear()
-      const date = service.parseDate(`${year}-${req.params.feriado}`)
+      const feriadoParam = service.getFeriadoParam(req.params.feriado)
 
-      const holiday = await service.get(date, location, state)
+      const holiday = await service.get(feriadoParam, location, state)
 
       if (!holiday) {
         throw {
@@ -70,14 +70,14 @@ module.exports = {
         }
       }
 
-      if (['Nacional'].includes(holiday.type)) {
+      if (holiday.type === 'Nacional') {
         throw {
           status: 403,
           message: `Não é possível excluir um feriado nacional (${holiday.name})`,
         }
       }
 
-      await holiday.destroy()
+      await service.destroy(holiday, location)
       return res.status(204).send()
     } catch (error) {
       return service.getResponseErrors(error, res)

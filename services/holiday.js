@@ -1,5 +1,7 @@
 const Location = require('../models').Location
+const ExcludedHoliday = require('../models').ExcludedHoliday
 const { Op } = require('sequelize')
+const regex = require('./regex')
 const Holiday = require('../models').Holiday
 
 module.exports = {
@@ -8,21 +10,25 @@ module.exports = {
       slug: 'carnaval',
       name: 'Carnaval',
       type: 'Móvel',
+      required: false,
     },
     sextaFeiraSanta: {
       slug: 'sexta-feira-santa',
       name: 'Sexta-Feira Santa',
       type: 'Móvel',
+      required: true,
     },
     corpusChristi: {
       slug: 'corpus-christi',
       name: 'Corpus Christi',
       type: 'Móvel',
+      required: false,
     },
     pascoa: {
       slug: 'pascoa',
       name: 'Páscoa',
       type: 'Móvel',
+      required: true,
     },
   },
 
@@ -31,15 +37,50 @@ module.exports = {
    * @param {date} Date
    * @description Retorna o feriado móvel de determinada data, caso exista
    */
-  async get(date, location, state = null) {
-    const mobileHoliday = this.getMobileHoliday(date)
+  async get(param, location, state = null) {
+    const feriadoParam = this.getFeriadoParam(param)
+
+    const paramIsDate = this.isDate(param)
+    const mobileHoliday = this.getMobileHoliday(feriadoParam, paramIsDate)
 
     if (mobileHoliday) {
       // Remover feriados excluídos pelos usuários
       return mobileHoliday
     }
 
-    return await this.getDefaultHoliday(date, location, state)
+    if (paramIsDate) {
+      return await this.getDefaultHoliday(date, location, state)
+    }
+    return null
+  },
+  async destroy(holiday, location) {
+    if (holiday.type === 'Móvel') {
+      if (holiday.required) {
+        throw {
+          status: 403,
+          message: `Você não tem permissão para excluir este feriado (${holiday.name})`
+        }
+      }
+      return await ExcludedHoliday.create({
+        location_id: location.id,
+        slug: holiday.slug,
+      })
+    }
+    return await holiday.destroy()
+  },
+  getFeriadoParam(param) {
+    if (this.isDate(param, false)) {
+      const year = new Date().getFullYear()
+      return this.parseDate(`${year}-${param}`)
+    }
+    if (this.isDate(param)) {
+      return this.parseDate(param)
+    }
+    return param
+  },
+  isDate(feriadoParam, withYear = true) {
+    const regexDate = new RegExp(regex.date(withYear))
+    return regexDate.test(feriadoParam)
   },
   async getDefaultHoliday(date, location, state) {
     const conditions = this.getConditionsHolidays(date, location, state)
@@ -123,15 +164,28 @@ module.exports = {
 
     return conditions
   },
-  getMobileHoliday(dateObject) {
-    const year = dateObject.getFullYear()
+  getMobileHoliday(feriadoParam, paramIsDate = true) {
+    const year = this.getYear(feriadoParam, paramIsDate)
     this.setDates(year)
 
-    const date = this.getDateString(dateObject)
+    const holidays = Object.values(this.holidays)
+    if (paramIsDate) {
+      const date = this.getDateString(feriadoParam)
 
-    return Object.values(this.holidays).find((holiday) => {
-      return holiday.date === date
+      return holidays.find((holiday) => {
+        return holiday.date === date
+      })
+    }
+
+    return holidays.find((holiday) => {
+      return holiday.slug === feriadoParam
     })
+  },
+  getYear(dateObject, paramIsDate) {
+    if (paramIsDate) {
+      return dateObject.getFullYear()
+    }
+    return new Date().getFullYear()
   },
   async getLocation(ibge) {
     const location = await Location.findOne({

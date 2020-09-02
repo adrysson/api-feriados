@@ -4,7 +4,7 @@ module.exports = {
   dateYear: '\\d{4}',
   dateMonth: '0[1-9]|1[012]',
   dateDay: '0[1-9]|[12][0-9]|3[01]',
-  slug: '[a-z]+(?:-[a-z]+)*',
+  slug: '[a-z]+|[a-z]+(?:-[a-z]+)*',
 
   /**
    *
