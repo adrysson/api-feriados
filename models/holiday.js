@@ -26,9 +26,6 @@ module.exports = (sequelize, DataTypes) => {
         get(column) {
           const value = this.getDataValue(column)
 
-          if (value === 'm') {
-            return 'Móvel'
-          }
           if (value === 'n') {
             return 'Nacional'
           }
@@ -42,7 +39,6 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       location_id: DataTypes.UUID,
-      slug: DataTypes.STRING,
     },
     {
       createdAt: 'created_at',

@@ -24,7 +24,7 @@ module.exports = {
         allowNull: true,
       },
       type: {
-        type: Sequelize.ENUM('m', 'n', 's', 'c'),
+        type: Sequelize.ENUM('n', 's', 'c'),
         allowNull: false,
       },
       location_id: {
@@ -34,10 +34,6 @@ module.exports = {
             tableName: 'locations',
           },
         },
-        allowNull: true,
-      },
-      slug: {
-        type: Sequelize.STRING,
         allowNull: true,
       },
       created_at: {
