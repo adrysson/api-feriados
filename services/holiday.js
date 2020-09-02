@@ -82,7 +82,19 @@ module.exports = {
     } catch (error) {
       throw {
         status: 422,
-        message: error.message,
+        message: `Não foi possível cadastrar o feriado para ${location.name}. Tente novamente.`,
+      }
+    }
+  },
+  async update(body, holiday) {
+    try {
+      return await holiday.update({
+        name: body.name,
+      })
+    } catch (error) {
+      throw {
+        status: 422,
+        message: `Não foi possível atualizar o feriado. Tente novamente.`,
       }
     }
   },

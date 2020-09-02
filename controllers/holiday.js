@@ -40,47 +40,18 @@ module.exports = {
         if (['Nacional', 'Móvel'].includes(holiday.type)) {
           throw {
             status: 403,
-            message: `Não é possível adicionar um feriado na data de um feriado nacional (${holiday.name})`
+            message: `Não é possível adicionar um feriado na data de um feriado nacional (${holiday.name})`,
           }
         }
-        // update
+        const locationUpdated = await service.update(req.body, holiday)
+        return res.status(200).send(service.getResponse(locationUpdated))
       }
 
       const locationCreated = await service.create(req.body, location, date)
-      if (locationCreated) {
-        return res.status(200).send(service.getResponse(locationCreated))
-      }
-
-      throw {
-        status: 422,
-        message: `Não foi possível cadastrar o feriado para ${location.name}. Tente novamente.`,
-      }
-
+      return res.status(201).send(service.getResponse(locationCreated))
     } catch (error) {
       return service.getResponseErrors(error, res)
     }
-    // return Holiday.findByPk(req.params.id, {
-    //   include: [
-    //     {
-    //       model: Student,
-    //       as: 'students',
-    //     },
-    //   ],
-    // })
-    //   .then((holiday) => {
-    //     if (!holiday) {
-    //       return res.status(404).send({
-    //         message: 'Holiday Not Found',
-    //       })
-    //     }
-    //     return holiday
-    //       .update({
-    //         class_name: req.body.class_name || holiday.class_name,
-    //       })
-    //       .then(() => res.status(200).send(holiday))
-    //       .catch((error) => res.status(400).send(error))
-    //   })
-    //   .catch((error) => res.status(400).send(error))
   },
   destroy(req, res) {
     return Holiday.findByPk(req.params.id)
