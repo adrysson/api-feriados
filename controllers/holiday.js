@@ -1,6 +1,6 @@
 const Holiday = require('../models').Holiday
 const Location = require('../models').Location
-const mobileHolidays = require('../services/mobileHolidays')
+const holidayService = require('../services/holiday')
 const dateFormat = require('dateformat')
 const { Op } = require('sequelize')
 
@@ -70,7 +70,7 @@ module.exports = {
       }
 
       // Buscando feriados móveis
-      const mobileHoliday = mobileHolidays.get(date)
+      const mobileHoliday = holidayService.get(date)
 
       // Remover feriados excluídos pelos usuários
 
@@ -88,7 +88,7 @@ module.exports = {
       })
 
       if (holiday) {
-        return res.status(200).send(mobileHolidays.getResponse(holiday))
+        return res.status(200).send(holidayService.getResponse(holiday))
       }
 
       return res.status(404).send({
