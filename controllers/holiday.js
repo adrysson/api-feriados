@@ -21,13 +21,7 @@ module.exports = {
         message: `Não foi encontrado nenhum feriado nesta data para ${location.name}`,
       }
     } catch (error) {
-      let status = 400
-      if (error.status) {
-        status = error.status
-      }
-      return res.status(status).send({
-        message: error.message,
-      })
+      return service.getResponseErrors(error, res)
     }
   },
   update(req, res) {

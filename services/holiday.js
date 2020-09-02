@@ -49,6 +49,15 @@ module.exports = {
       },
     })
   },
+  getResponseErrors(error, response) {
+    let status = 400
+    if (error.status) {
+      status = error.status
+    }
+    return response.status(status).send({
+      message: error.message,
+    })
+  },
   getConditionsHolidays(date, location, state = null) {
     const year = date.getFullYear()
 
