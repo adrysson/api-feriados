@@ -41,15 +41,18 @@ module.exports = {
     const feriadoParam = this.getFeriadoParam(param)
 
     const paramIsDate = this.isDate(param)
-    const mobileHoliday = this.getMobileHoliday(feriadoParam, paramIsDate)
+    const mobileHoliday = this.getMobileHoliday(
+      feriadoParam,
+      location,
+      paramIsDate
+    )
 
     if (mobileHoliday) {
-      // Remover feriados excluídos pelos usuários
       return mobileHoliday
     }
 
     if (paramIsDate) {
-      return await this.getDefaultHoliday(date, location, state)
+      return await this.getDefaultHoliday(feriadoParam, location, state)
     }
     return null
   },
@@ -58,7 +61,7 @@ module.exports = {
       if (holiday.required) {
         throw {
           status: 403,
-          message: `Você não tem permissão para excluir este feriado (${holiday.name})`
+          message: `Você não tem permissão para excluir este feriado (${holiday.name})`,
         }
       }
       return await ExcludedHoliday.create({
@@ -164,10 +167,26 @@ module.exports = {
 
     return conditions
   },
-  getMobileHoliday(feriadoParam, paramIsDate = true) {
+  getMobileHoliday(feriadoParam, location, paramIsDate = true) {
     const year = this.getYear(feriadoParam, paramIsDate)
     this.setDates(year)
 
+    const mobileHoliday = this.findMobileHoliday(feriadoParam, paramIsDate)
+
+    if (mobileHoliday) {
+      const holidayExcluded = ExcludedHoliday.findOne({
+        where: {
+          location_id: location.id,
+          slug: mobileHoliday.slug,
+        },
+      })
+      if (!holidayExcluded) {
+        return mobileHoliday
+      }
+    }
+    return null
+  },
+  findMobileHoliday(feriadoParam, paramIsDate) {
     const holidays = Object.values(this.holidays)
     if (paramIsDate) {
       const date = this.getDateString(feriadoParam)

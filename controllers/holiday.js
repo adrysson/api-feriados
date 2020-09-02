@@ -9,7 +9,7 @@ module.exports = {
 
       const state = await service.getState(req.params.ibge)
 
-      const date = `${year}-${req.params.feriado}`
+      const date = req.params.feriado
 
       const holiday = await service.get(date, location, state)
 
