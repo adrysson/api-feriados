@@ -9,12 +9,12 @@ router.get(
   holidayController.index
 )
 router.put(
-  `/:ibge(${regex.ibge()})/:feriado((${regex.date(false)}))`,
+  `/:ibge(${regex.ibge()})/:feriado((${regex.date(false)}|${regex.slug}))`,
   holidayController.update
 )
-// router.get(
-//   `/:ibge(${regex.ibge()})/:feriado((${regex.date()}|[a-z]+|${regex.slug}))`,
-//   holidayController.index
-// )
+router.delete(
+  `/:ibge(${regex.ibge()})/:feriado((${regex.date(false)}|${regex.slug}))`,
+  holidayController.destroy
+)
 
 module.exports = router

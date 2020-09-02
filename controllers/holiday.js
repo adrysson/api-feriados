@@ -34,9 +34,8 @@ module.exports = {
       const date = service.parseDate(`${year}-${req.params.feriado}`)
 
       const holiday = await service.get(date, location, state)
-      console.log(holiday)
+
       if (holiday) {
-        console.log(holiday)
         if (['Nacional', 'Móvel'].includes(holiday.type)) {
           throw {
             status: 403,
@@ -53,19 +52,35 @@ module.exports = {
       return service.getResponseErrors(error, res)
     }
   },
-  destroy(req, res) {
-    return Holiday.findByPk(req.params.id)
-      .then((holiday) => {
-        if (!holiday) {
-          return res.status(400).send({
-            message: 'Holiday Not Found',
-          })
+  async destroy(req, res) {
+    try {
+      const location = await service.getLocation(req.params.ibge)
+
+      const state = await service.getState(req.params.ibge)
+
+      const year = new Date().getFullYear()
+      const date = service.parseDate(`${year}-${req.params.feriado}`)
+
+      const holiday = await service.get(date, location, state)
+
+      if (!holiday) {
+        throw {
+          status: 404,
+          message: 'Feriado não encontrado',
         }
-        return holiday
-          .destroy()
-          .then(() => res.status(204).send())
-          .catch((error) => res.status(400).send(error))
-      })
-      .catch((error) => res.status(400).send(error))
+      }
+
+      if (['Nacional'].includes(holiday.type)) {
+        throw {
+          status: 403,
+          message: `Não é possível excluir um feriado nacional (${holiday.name})`,
+        }
+      }
+
+      await holiday.destroy()
+      return res.status(204).send()
+    } catch (error) {
+      return service.getResponseErrors(error, res)
+    }
   },
 }
