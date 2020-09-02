@@ -14,18 +14,6 @@ module.exports = {
       slug: {
         type: Sequelize.STRING,
       },
-      holiday_id: {
-        type: Sequelize.UUID,
-        references: {
-          model: {
-            tableName: 'locations',
-          },
-        },
-        allowNull: true,
-      },
-      type: {
-        type: Sequelize.ENUM('m', 'n'),
-      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
