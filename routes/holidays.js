@@ -8,6 +8,10 @@ router.get(
   `/:ibge(${regex.ibge()})/:feriado((${regex.date()}))`,
   holidayController.index
 )
+router.put(
+  `/:ibge(${regex.ibge()})/:feriado((${regex.date(false)}))`,
+  holidayController.update
+)
 // router.get(
 //   `/:ibge(${regex.ibge()})/:feriado((${regex.date()}|[a-z]+|${regex.slug}))`,
 //   holidayController.index

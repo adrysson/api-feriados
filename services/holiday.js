@@ -7,18 +7,22 @@ module.exports = {
     carnaval: {
       slug: 'carnaval',
       name: 'Carnaval',
+      type: 'Móvel',
     },
     sextaFeiraSanta: {
       slug: 'sexta-feira-santa',
       name: 'Sexta-Feira Santa',
+      type: 'Móvel',
     },
     corpusChristi: {
       slug: 'corpus-christi',
       name: 'Corpus Christi',
+      type: 'Móvel',
     },
     pascoa: {
       slug: 'pascoa',
       name: 'Páscoa',
+      type: 'Móvel',
     },
   },
 
@@ -35,6 +39,9 @@ module.exports = {
       return mobileHoliday
     }
 
+    return await this.getDefaultHoliday(date, location, state)
+  },
+  async getDefaultHoliday(date, location, state) {
     const conditions = this.getConditionsHolidays(date, location, state)
 
     const day = date.getUTCDate()
@@ -57,6 +64,27 @@ module.exports = {
     return response.status(status).send({
       message: error.message,
     })
+  },
+  async create(body, location, date) {
+    try {
+      const day = date.getUTCDate()
+      const month = date.getMonth() + 1
+      const year = date.getFullYear()
+      const type = location.ibge.length > 2 ? 'c' : 's'
+      return await Holiday.create({
+        name: body.name,
+        day,
+        month,
+        year,
+        type,
+        location_id: location.id,
+      })
+    } catch (error) {
+      throw {
+        status: 422,
+        message: error.message,
+      }
+    }
   },
   getConditionsHolidays(date, location, state = null) {
     const year = date.getFullYear()
