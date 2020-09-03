@@ -30,8 +30,8 @@ module.exports = {
    */
   date(withYear = true) {
     if (withYear) {
-      return `(${this.dateYear})\\-(${this.dateMonth})\\-(${this.dateDay})`
+      return `(${this.dateYear})[-](${this.dateMonth})[-](${this.dateDay})`
     }
-    return `(${this.dateMonth})\\-(${this.dateDay})`
+    return `(${this.dateMonth})[-](${this.dateDay})`
   },
 }

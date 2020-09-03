@@ -1,6 +1,4 @@
-const Holiday = require('../models').Holiday
 const service = require('../services/holiday')
-const regex = require('../services/regex')
 
 module.exports = {
   async index(req, res) {
@@ -31,8 +29,7 @@ module.exports = {
 
       const state = await service.getState(req.params.ibge)
 
-      const year = new Date().getFullYear()
-      const date = `${year}-${req.params.feriado}`
+      const date = req.params.feriado
 
       const holiday = await service.get(date, location, state)
 
@@ -59,9 +56,9 @@ module.exports = {
 
       const state = await service.getState(req.params.ibge)
 
-      const feriadoParam = service.getFeriadoParam(req.params.feriado)
+      const date = req.params.feriado
 
-      const holiday = await service.get(feriadoParam, location, state)
+      const holiday = await service.get(date, location, state)
 
       if (!holiday) {
         throw {

@@ -40,7 +40,7 @@ module.exports = {
   async get(param, location, state = null) {
     const feriadoParam = this.getFeriadoParam(param)
 
-    const paramIsDate = this.isDate(param)
+    const paramIsDate = this.isDate(param) || this.isDate(param, false)
     const mobileHoliday = await this.getMobileHoliday(
       feriadoParam,
       location,
@@ -109,11 +109,42 @@ module.exports = {
       message: error.message,
     })
   },
-  async create(body, location, date) {
+  async create(body, location, param) {
     try {
-      const day = date.getUTCDate()
-      const month = date.getMonth() + 1
-      const year = date.getFullYear()
+      const feriadoParam = this.getFeriadoParam(param)
+
+      const paramIsDate = this.isDate(param)
+
+      if (!paramIsDate) {
+        const year = this.getYear(feriadoParam, paramIsDate)
+        this.setDates(year)
+
+        const mobileHoliday = this.findMobileHoliday(feriadoParam, paramIsDate)
+
+        if (!mobileHoliday) {
+          return null
+        }
+
+        const holidayExcluded = await ExcludedHoliday.findOne({
+          where: {
+            location_id: location.id,
+            slug: mobileHoliday.slug,
+          },
+        })
+
+        if (holidayExcluded) {
+          const holidayExcludedRemoved = await holidayExcluded.destroy()
+
+          if (!holidayExcludedRemoved) {
+            return null
+          }
+        }
+        return mobileHoliday
+      }
+
+      const day = feriadoParam.getUTCDate()
+      const month = feriadoParam.getMonth() + 1
+      const year = feriadoParam.getFullYear()
       const type = location.ibge.length > 2 ? 'c' : 's'
       return await Holiday.create({
         name: body.name,
