@@ -41,7 +41,7 @@ module.exports = {
     const feriadoParam = this.getFeriadoParam(param)
 
     const paramIsDate = this.isDate(param)
-    const mobileHoliday = this.getMobileHoliday(
+    const mobileHoliday = await this.getMobileHoliday(
       feriadoParam,
       location,
       paramIsDate
@@ -82,7 +82,7 @@ module.exports = {
     return param
   },
   isDate(feriadoParam, withYear = true) {
-    const regexDate = new RegExp(regex.date(withYear))
+    const regexDate = new RegExp(`^${regex.date(withYear)}$`)
     return regexDate.test(feriadoParam)
   },
   async getDefaultHoliday(date, location, state) {
@@ -167,19 +167,20 @@ module.exports = {
 
     return conditions
   },
-  getMobileHoliday(feriadoParam, location, paramIsDate = true) {
+  async getMobileHoliday(feriadoParam, location, paramIsDate = true) {
     const year = this.getYear(feriadoParam, paramIsDate)
     this.setDates(year)
 
     const mobileHoliday = this.findMobileHoliday(feriadoParam, paramIsDate)
 
     if (mobileHoliday) {
-      const holidayExcluded = ExcludedHoliday.findOne({
+      const holidayExcluded = await ExcludedHoliday.findOne({
         where: {
           location_id: location.id,
           slug: mobileHoliday.slug,
         },
       })
+
       if (!holidayExcluded) {
         return mobileHoliday
       }

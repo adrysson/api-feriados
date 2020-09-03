@@ -12,13 +12,13 @@ module.exports = {
    * @description Retorna a expressão regular de um número do IBGE, podendo ser de um estado (type = state), cidade (type = city) ou ambos (type = all)
    */
   ibge(type = 'all') {
-    if ((type = 'state')) {
+    if (type === 'state') {
       return this.ibgeState
     }
-    if ((type = 'city')) {
+    if (type === 'city') {
       return this.ibgeCity
     }
-    if ((type = 'all')) {
+    if (type === 'all') {
       return `(${this.ibgeState}|${this.ibgeCity})`
     }
     return null
@@ -30,7 +30,7 @@ module.exports = {
    */
   date(withYear = true) {
     if (withYear) {
-      return `${this.dateYear}\\-(${this.dateMonth})\\-(${this.dateDay})`
+      return `(${this.dateYear})\\-(${this.dateMonth})\\-(${this.dateDay})`
     }
     return `(${this.dateMonth})\\-(${this.dateDay})`
   },
