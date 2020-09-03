@@ -52,6 +52,13 @@ module.exports = {
         return res.status(200).send(service.getResponse(holidayUpdated))
       }
 
+      if (!service.isDate(date) && !service.isDate(date, false)) {
+        throw {
+          status: 404,
+          message: 'Feriado não encontrado'
+        }
+      }
+
       const holidayCreated = await service.create(req.body, location, date)
       return res.status(201).send(service.getResponse(holidayCreated))
     } catch (error) {

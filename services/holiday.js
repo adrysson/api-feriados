@@ -229,7 +229,7 @@ module.exports = {
     }
 
     return holidays.find((holiday) => {
-      return holiday.slug === feriadoParam
+      return holiday.slug === feriadoParam.replace('/', '')
     })
   },
   getYear(dateObject, paramIsDate) {
