@@ -74,6 +74,13 @@ module.exports = {
         }
       }
 
+      if (holiday.type === 'Estadual' && location.type === 'Local') {
+        throw {
+          status: 403,
+          message: `Não é possível excluir um feriado estadual (${holiday.name}) em um município`,
+        }
+      }
+
       await service.destroy(holiday, location)
       return res.status(204).send()
     } catch (error) {

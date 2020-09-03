@@ -19,7 +19,20 @@ module.exports = (sequelize, DataTypes) => {
     {
       ibge: DataTypes.INTEGER,
       name: DataTypes.STRING,
-      type: DataTypes.ENUM('s', 'c'),
+      type: {
+        type: DataTypes.ENUM('s', 'c'),
+        get(column) {
+          const value = this.getDataValue(column)
+
+          if (value === 's') {
+            return 'Estadual'
+          }
+          if (value === 'c') {
+            return 'Local'
+          }
+          return null
+        },
+      },
     },
     {
       timestamps: false,
