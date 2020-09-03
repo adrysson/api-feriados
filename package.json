@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www --exec",
-    "buld": "babel ./bin/www -d dist"
+    "build": "babel ./bin/www -d dist"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -26,5 +26,9 @@
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
     "nodemon": "^2.0.4"
+  },
+  "engines": {
+    "node": "12.18.3",
+    "npm": "6.14.8"
   }
 }
