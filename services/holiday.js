@@ -113,7 +113,7 @@ module.exports = {
     try {
       const feriadoParam = this.getFeriadoParam(param)
 
-      const paramIsDate = this.isDate(param)
+      const paramIsDate = this.isDate(param) || this.isDate(param, false)
 
       if (!paramIsDate) {
         const year = this.getYear(feriadoParam, paramIsDate)
