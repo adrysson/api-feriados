@@ -34,18 +34,26 @@ module.exports = {
       const holiday = await service.get(date, location, state)
 
       if (holiday) {
-        if (['Nacional', 'Móvel'].includes(holiday.type)) {
+        if (
+          holiday.type === 'Nacional' ||
+          (holiday.type === 'Móvel' && holiday.required)
+        ) {
           throw {
             status: 403,
             message: `Não é possível adicionar um feriado na data de um feriado nacional (${holiday.name})`,
           }
         }
-        const locationUpdated = await service.update(req.body, holiday)
-        return res.status(200).send(service.getResponse(locationUpdated))
+
+        if (holiday.type === 'Móvel') {
+          return res.status(200).send(service.getResponse(holiday))
+        }
+
+        const holidayUpdated = await service.update(req.body, holiday)
+        return res.status(200).send(service.getResponse(holidayUpdated))
       }
 
-      const locationCreated = await service.create(req.body, location, date)
-      return res.status(201).send(service.getResponse(locationCreated))
+      const holidayCreated = await service.create(req.body, location, date)
+      return res.status(201).send(service.getResponse(holidayCreated))
     } catch (error) {
       return service.getResponseErrors(error, res)
     }
